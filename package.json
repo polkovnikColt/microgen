@@ -16,5 +16,10 @@
   "bugs": {
     "url": "https://github.com/polkovnikColt/microgen/issues"
   },
-  "homepage": "https://github.com/polkovnikColt/microgen#readme"
+  "homepage": "https://github.com/polkovnikColt/microgen#readme",
+  "devDependencies": {
+    "@types/node": "^20.11.20",
+    "tsc": "^2.0.4",
+    "typescript": "^5.3.3"
+  }
 }
