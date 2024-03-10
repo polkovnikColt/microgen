@@ -2,9 +2,11 @@
   "name": "microgen",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "bin": "./bin.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "generate:dev": "tsc && node ./dist/index.js",
+    "generate": "node ./dist/index.js"
   },
   "repository": {
     "type": "git",
@@ -18,8 +20,13 @@
   },
   "homepage": "https://github.com/polkovnikColt/microgen#readme",
   "devDependencies": {
+    "@types/args": "^5.0.3",
     "@types/node": "^20.11.20",
+    "@types/yargs": "^17.0.32",
     "tsc": "^2.0.4",
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.2"
+  },
+  "dependencies": {
+    "args": "^5.0.3"
   }
 }

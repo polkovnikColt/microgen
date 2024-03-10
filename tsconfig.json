@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "baseUrl": "./src",
+    "outDir": "./dist",
     "target": "es5",
-    "jsx": "preserve",
     "lib": ["esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -11,13 +11,11 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": false,
     "sourceMap": true
-  },
-  "include": ["src", "src/typings"],
-  "exclude": ["node_modules"]
+  }
 }
