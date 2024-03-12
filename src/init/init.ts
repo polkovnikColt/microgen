@@ -1,52 +1,71 @@
 import * as fs from "fs";
 import { join } from "path";
-import { exec } from "node:child_process";
 
-import { osExecutableCommands, npmExecutableCommands } from "../commands";
+import {
+  osExecutableCommands,
+  npmExecutableCommands,
+  ChildProcessBuilder,
+} from "../commands";
 import { __PROJECT_METADATA__ } from "../shared/projectMetadata";
+import { MainConfigFile, MicroserviceConfig } from "../types";
+import { logger } from "../logger";
 
-export const extractAllConfigFiles = (dirPath: string) => {
+export const getProjectConfigs = (dirPath: string): void => {
   const path = join(__dirname, `../../../../${dirPath}`);
+
+  logger.info(`Reading path for current project ${path}`);
 
   __PROJECT_METADATA__.projectPath = path;
   __PROJECT_METADATA__.projectFolderName = dirPath;
 
-  const mainConfigFile = fs.readFileSync(`${path}/main.json`, {
-    encoding: "utf8",
-  });
-
-  let configs: { main: string; [key: string]: string } = {
-    main: mainConfigFile,
-  };
-  const wholeDirectory: string[] = fs.readdirSync(path);
-  const foldersOnly = wholeDirectory.filter(
-    (elem) => !fs.statSync(`${path}/${elem}`).isFile()
+  const mainConfigFile = fs.readFileSync(
+    `${path}/${__PROJECT_METADATA__.mainFileName}`,
+    {
+      encoding: "utf8",
+    }
   );
-  for (const folder of foldersOnly) {
-    const deepPath: string = join(path, folder);
+
+  const parsedMainConfigFile = JSON.parse(mainConfigFile) as MainConfigFile;
+
+  const microservicesConfigs: MicroserviceConfig[] =
+    parsedMainConfigFile.microservices;
+
+  for (const config of microservicesConfigs) {
+    const deepPath = join(path, config.name);
 
     __PROJECT_METADATA__.microservices.push({
+      ...config,
       valid: true,
-      folderName: folder,
+      folderName: config.name,
       absolutePath: deepPath,
     });
 
-    const microConfig = fs.readFileSync(deepPath + "/micro.json", {
-      encoding: "utf8",
-    });
+    if (fs.existsSync(deepPath)) {
+      logger.warn(
+        `Microservice ${config.name} already exists!!! If you want to regenerate if, please use --forced flag`
+      );
+    }
 
-    configs = { ...configs, [folder]: microConfig };
+    if (!fs.existsSync(deepPath)) {
+      try {
+        logger.info(`Create ${config.name} microservice...`);
+        fs.mkdirSync(`${path}/${config.name}`);
+        logger.info(`Microservice ${config.name} created successfully`);
+      } catch (e) {
+        const { message } = e as Error;
+        logger.error(
+          `Error when creating ${config.name}!!! Reason: ${message}`
+        );
+      }
+    }
   }
-
-  return configs;
 };
 
-export const initNodeProjects = () => {
-  __PROJECT_METADATA__.microservices.map(({ absolutePath }) => {
-    exec(
-      `${osExecutableCommands.changeDirectory(
-        absolutePath
-      )} && ${npmExecutableCommands.npmInit()}`
-    );
+export const initializeNodeProjects = (): void => {
+  __PROJECT_METADATA__.microservices.forEach(({ absolutePath }) => {
+    new ChildProcessBuilder()
+      .append(osExecutableCommands.changeDirectory(absolutePath))
+      .append(npmExecutableCommands.npmInit())
+      .exec();
   });
 };

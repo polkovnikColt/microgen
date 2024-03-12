@@ -1,9 +1,8 @@
+import { MicroserviceConfig } from "./mainConfigFile";
+
 export interface ProjectMetadata {
+  mainFileName: string;
   projectPath: string;
   projectFolderName: string;
-  microservices: {
-    valid: boolean;
-    folderName: string;
-    absolutePath: string;
-  }[];
+  microservices: MicroserviceConfig[];
 }
