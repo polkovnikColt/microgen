@@ -1,4 +1,4 @@
-{
+export const tsconfig = `{
   "compilerOptions": {
     "baseUrl": "./src",
     "outDir": "./dist",
@@ -18,9 +18,5 @@
     "noEmit": false,
     "sourceMap": true
   },
-  "include": [
-    "./**/*.ts",
-    "src/assets/typescript/tsconfig.json",
-    "src/assets/git/.gitignore.asset.js"
-  ]
-}
+  "include": ["./src/**/*.ts", "./src/assets/**/*.txt", "src/assets/typescript/tsconfig.json.asset.js"]
+}`

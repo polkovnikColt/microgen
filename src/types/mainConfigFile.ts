@@ -6,6 +6,7 @@ export enum Frameworks {
 export enum Languages {
   JS = "js",
   TS = "ts",
+  DEFAULT = "default",
 }
 
 export interface MicroserviceConfig {

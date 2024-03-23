@@ -9,6 +9,9 @@ export class ChildProcessBuilder {
   }
 
   append(command: string): typeof this {
+    if (!command) {
+      return this;
+    }
     if (!this.query) {
       this.query = command;
     } else {

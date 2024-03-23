@@ -15,5 +15,5 @@ if (!variables.path) {
 
 getProjectConfigs(variables.path);
 initializeNodeProjects();
-initializeTypescript();
+// initializeTypescript();
 onModulesInit();

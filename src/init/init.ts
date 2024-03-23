@@ -7,8 +7,14 @@ import {
   ChildProcessBuilder,
 } from "../commands";
 import { __PROJECT_METADATA__ } from "../shared/projectMetadata";
-import { MainConfigFile, MicroserviceConfig } from "../types";
+import {
+  Frameworks,
+  Languages,
+  MainConfigFile,
+  MicroserviceConfig,
+} from "../types";
 import { logger } from "../logger";
+import { validateFile } from "../validate";
 
 export const getProjectConfigs = (dirPath: string): void => {
   const path = join(__dirname, `../../../../${dirPath}`);
@@ -27,6 +33,8 @@ export const getProjectConfigs = (dirPath: string): void => {
 
   const parsedMainConfigFile = JSON.parse(mainConfigFile) as MainConfigFile;
 
+  validateFile(parsedMainConfigFile);
+
   const microservicesConfigs: MicroserviceConfig[] =
     parsedMainConfigFile.microservices;
 
@@ -35,6 +43,9 @@ export const getProjectConfigs = (dirPath: string): void => {
 
     __PROJECT_METADATA__.microservices.push({
       ...config,
+      language:
+        config.language ??
+        (config.framework === Frameworks.NEST && Languages.DEFAULT),
       valid: true,
       folderName: config.name,
       absolutePath: deepPath,
@@ -42,7 +53,7 @@ export const getProjectConfigs = (dirPath: string): void => {
 
     if (fs.existsSync(deepPath)) {
       logger.warn(
-        `Microservice ${config.name} already exists!!! If you want to regenerate if, please use --forced flag`
+        `Microservice ${config.name} already exists!!! If you want to override it, please use --override flag`
       );
     }
 
@@ -62,10 +73,12 @@ export const getProjectConfigs = (dirPath: string): void => {
 };
 
 export const initializeNodeProjects = (): void => {
-  __PROJECT_METADATA__.microservices.forEach(({ absolutePath }) => {
-    new ChildProcessBuilder()
-      .append(osExecutableCommands.changeDirectory(absolutePath))
-      .append(npmExecutableCommands.npmInit())
-      .exec();
-  });
+  __PROJECT_METADATA__.microservices
+    .filter(({ framework }) => framework !== Frameworks.NEST)
+    .forEach(({ absolutePath }) => {
+      new ChildProcessBuilder()
+        .append(osExecutableCommands.changeDirectory(absolutePath))
+        .append(npmExecutableCommands.npmInit())
+        .exec();
+    });
 };
