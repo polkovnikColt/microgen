@@ -4,8 +4,8 @@
   "description": "",
   "bin": "./bin.js",
   "scripts": {
-    "build": "tsc",
-    "generate:dev": "tsc && node ./dist/index.js",
+    "build": "tsc && ./scripts/copyAssets.sh",
+    "generate:dev": "tsc && ./scripts/copyAssets.sh && node ./dist/index.js",
     "generate": "node ./dist/index.js"
   },
   "repository": {

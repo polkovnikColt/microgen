@@ -20,7 +20,9 @@
   },
   "include": [
     "./**/*.ts",
-    "src/assets/typescript/tsconfig.json",
-    "src/assets/git/.gitignore.asset.js"
-  ]
+    "src/assets/express/js/app.controller.js",
+    "src/assets/express/js/app.module.js",
+    "src/assets/express/js/app.service.js"
+  ],
+  "exclude": ["src/assets", "./dist"]
 }

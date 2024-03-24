@@ -12,10 +12,12 @@ export enum Languages {
 export interface MicroserviceConfig {
   name: string;
   framework: Frameworks;
-  valid: boolean;
+  exists: boolean;
   folderName: string;
   absolutePath: string;
   language: Languages;
+  deps: string[];
+  devDeps: string[];
 }
 
 export interface MainConfigFile {

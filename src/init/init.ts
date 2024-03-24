@@ -17,6 +17,7 @@ import { logger } from "../logger";
 import { validateFile } from "../validate";
 
 export const getProjectConfigs = (dirPath: string): void => {
+  //TODO - FIX path
   const path = join(__dirname, `../../../../${dirPath}`);
 
   logger.info(`Reading path for current project ${path}`);
@@ -46,7 +47,7 @@ export const getProjectConfigs = (dirPath: string): void => {
       language:
         config.language ??
         (config.framework === Frameworks.NEST && Languages.DEFAULT),
-      valid: true,
+      exists: fs.existsSync(`${deepPath}/package.json`),
       folderName: config.name,
       absolutePath: deepPath,
     });

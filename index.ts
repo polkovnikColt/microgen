@@ -14,6 +14,14 @@ if (!variables.path) {
 }
 
 getProjectConfigs(variables.path);
-initializeNodeProjects();
-// initializeTypescript();
-onModulesInit();
+
+const app = () => {
+  setTimeout(() => {
+    initializeNodeProjects();
+  }, 5000);
+  setTimeout(() => {
+    onModulesInit();
+  }, 5000);
+};
+
+app();
