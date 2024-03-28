@@ -17,11 +17,14 @@ export interface MicroserviceConfig {
   absolutePath: string;
   language: Languages;
   deps: string[];
+  dockerFile?: boolean;
   devDeps: string[];
 }
 
 export interface MainConfigFile {
   appName: string;
-  externalModules?: { name: string; path: string }[];
+  externalModules?: string[];
+  gateway?: boolean;
+  projectPath: string;
   microservices: MicroserviceConfig[];
 }

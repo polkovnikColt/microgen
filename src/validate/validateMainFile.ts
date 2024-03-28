@@ -7,6 +7,11 @@ const fields = [
     required: false,
     type: "object",
   },
+  {
+    name: "gateway",
+    required: false,
+    type: "boolean",
+  },
   { name: "microservices", required: true, type: "object" },
 ];
 
@@ -15,7 +20,10 @@ export const validateFile = (fileContent: any) => {
     if (!fileContent[field.name] && field.required) {
       throw new Error(`Field ${field.name} is required`);
     }
-    if (typeof fileContent[field.name] !== field.type) {
+    if (
+      fileContent[field.name] &&
+      typeof fileContent[field.name] !== field.type
+    ) {
       throw new Error(`Field ${field.name} should be ${field.type}`);
     }
   }

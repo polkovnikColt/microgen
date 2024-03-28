@@ -20,6 +20,8 @@ export const getProjectConfigs = (dirPath: string): void => {
   //TODO - FIX path
   const path = join(__dirname, `../../../../${dirPath}`);
 
+  console.log("CWD", process.cwd());
+
   logger.info(`Reading path for current project ${path}`);
 
   __PROJECT_METADATA__.projectPath = path;
@@ -35,6 +37,9 @@ export const getProjectConfigs = (dirPath: string): void => {
   const parsedMainConfigFile = JSON.parse(mainConfigFile) as MainConfigFile;
 
   validateFile(parsedMainConfigFile);
+
+  __PROJECT_METADATA__.gateway = parsedMainConfigFile.gateway;
+  __PROJECT_METADATA__.externalModules = parsedMainConfigFile.externalModules;
 
   const microservicesConfigs: MicroserviceConfig[] =
     parsedMainConfigFile.microservices;
@@ -73,13 +78,17 @@ export const getProjectConfigs = (dirPath: string): void => {
   }
 };
 
-export const initializeNodeProjects = (): void => {
-  __PROJECT_METADATA__.microservices
+export const initializeNodeProjects = (): Promise<any>[] => {
+  const promises = __PROJECT_METADATA__.microservices
     .filter(({ framework }) => framework !== Frameworks.NEST)
-    .forEach(({ absolutePath }) => {
-      new ChildProcessBuilder()
+    .map(({ absolutePath }) => {
+      return new ChildProcessBuilder()
         .append(osExecutableCommands.changeDirectory(absolutePath))
         .append(npmExecutableCommands.npmInit())
-        .exec();
+        .execAsync();
     });
+
+  logger.info("Initializing Node projects");
+
+  return promises;
 };

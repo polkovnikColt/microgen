@@ -8,6 +8,8 @@ import {
 import { logger } from "../logger";
 import { initializeTypescript } from "./typescriptConf";
 import { join } from "path";
+import { printChildProcessOutput } from "../utils";
+import { initializeDocker } from "./dockerConf";
 
 const frameworkConfigs: Record<string, CallableFunction> = {
   [Frameworks.EXPRESS]: npmExecutableCommands.npmInitExpress,
@@ -17,50 +19,63 @@ const frameworkConfigs: Record<string, CallableFunction> = {
   [Languages.DEFAULT]: npmExecutableCommands.npmNoop,
 };
 
-export const initializeServices = () => {
-  __PROJECT_METADATA__.microservices
+export const initializeServices = (): Promise<any>[] => {
+  const promises = __PROJECT_METADATA__.microservices
     .filter(({ exists }) => !exists)
-    .forEach(({ absolutePath, framework, language }) => {
-      new ChildProcessBuilder()
+    .map(({ absolutePath, framework, language }) => {
+      return new ChildProcessBuilder()
         .append(osExecutableCommands.changeDirectory(absolutePath))
         .append(frameworkConfigs[framework]())
         .append(frameworkConfigs[language]())
         .append(osExecutableCommands.initGit())
-        .exec();
+        .execAsync();
     });
+
+  logger.info("Initializing frameworks...");
+
+  return promises;
 };
 
-export const copyConfigFiles = () => {
-  __PROJECT_METADATA__.microservices.forEach(({ absolutePath }) => {
-    new ChildProcessBuilder()
-      .append(osExecutableCommands.changeDirectory(absolutePath))
-      .append(
-        osExecutableCommands.copyFile(
-          join(__dirname, "../assets/git/.gitignore"),
-          absolutePath
+export const copyConfigFiles = (): Promise<any>[] => {
+  const promises = __PROJECT_METADATA__.microservices
+    .filter(({ framework, exists }) => framework !== Frameworks.NEST && !exists)
+    .map(({ absolutePath }) => {
+      return new ChildProcessBuilder()
+        .append(osExecutableCommands.changeDirectory(absolutePath))
+        .append(
+          osExecutableCommands.copyFile(
+            join(__dirname, "../assets/git/.gitignore"),
+            absolutePath
+          )
         )
-      )
-      .exec();
-  });
+        .execAsync();
+    });
+
+  logger.info("Copying files...");
+
+  return promises;
 };
 
-export const installDeps = () => {
-  __PROJECT_METADATA__.microservices.forEach(
+export const installDeps = (): Promise<any>[] => {
+  const promises = __PROJECT_METADATA__.microservices.map(
     ({ absolutePath, deps, devDeps }) => {
-      new ChildProcessBuilder()
+      return new ChildProcessBuilder()
         .append(osExecutableCommands.changeDirectory(absolutePath))
         .append(npmExecutableCommands.npmInstallDeps(deps))
         .append(npmExecutableCommands.npmInstallDevDeps(devDeps))
-        .exec();
+        .execAsync();
     }
   );
+  logger.info("Installing dependencies...");
+
+  return promises;
 };
 
-export const copyMVCFiles = () => {
-  __PROJECT_METADATA__.microservices
+export const copyMVCFiles = (): Promise<any>[] => {
+  const promises = __PROJECT_METADATA__.microservices
     .filter(({ framework, exists }) => framework !== Frameworks.NEST && !exists)
-    .forEach(({ absolutePath, language, framework }) => {
-      new ChildProcessBuilder()
+    .map(({ absolutePath, language, framework }) => {
+      return new ChildProcessBuilder()
         .append(osExecutableCommands.changeDirectory(absolutePath))
         .append(osExecutableCommands.createDirectory("src"))
         .append(
@@ -69,31 +84,31 @@ export const copyMVCFiles = () => {
             join(absolutePath, "src")
           )
         )
-        .exec();
+        .execAsync();
     });
+  logger.info("Copying main server files...");
+
+  return promises;
 };
 
-export const onModulesInit = () => {
+export const onModulesInit = async () => {
   logger.info("Initializing Microservices...");
-  initializeServices();
 
-  setTimeout(() => {
-    logger.info("Initializing languages settings...");
-    initializeTypescript();
-  }, 5000);
+  const responsesInitServices = await Promise.all(initializeServices());
+  printChildProcessOutput(responsesInitServices);
 
-  setTimeout(() => {
-    logger.info("Copying config files...");
-    copyConfigFiles();
-  }, 10000);
+  const responsesInitTypeScript = await Promise.all(initializeTypescript());
+  printChildProcessOutput(responsesInitTypeScript);
 
-  setTimeout(() => {
-    logger.info("Copying MVC files...");
-    copyMVCFiles();
-  }, 20000);
+  const responsesCopyFiles = await Promise.all(copyConfigFiles());
+  printChildProcessOutput(responsesCopyFiles);
 
-  setTimeout(() => {
-    logger.info("Installing deps...");
-    installDeps();
-  }, 30000);
+  const responsesCopyMVCFiles = await Promise.all(copyMVCFiles());
+  printChildProcessOutput(responsesCopyMVCFiles);
+
+  const responsesInstallDeps = await Promise.all(installDeps());
+  printChildProcessOutput(responsesInstallDeps);
+
+  const responsesInitDocker = await Promise.all(initializeDocker());
+  printChildProcessOutput(responsesInitDocker);
 };

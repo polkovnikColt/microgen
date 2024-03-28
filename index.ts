@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { logger } from "./src/logger";
-import { initializeTypescript, onModulesInit } from "./src/init";
+import { onModulesInit, onProjectInit } from "./src/init";
 import { getProjectConfigs, initializeNodeProjects } from "./src/init";
 import { parseArgs } from "./src/parsers";
 import { __PROJECT_METADATA__ } from "./src/shared/projectMetadata";
@@ -15,13 +15,10 @@ if (!variables.path) {
 
 getProjectConfigs(variables.path);
 
-const app = () => {
-  setTimeout(() => {
-    initializeNodeProjects();
-  }, 5000);
-  setTimeout(() => {
-    onModulesInit();
-  }, 5000);
+const bootstrap = async () => {
+  await Promise.all(initializeNodeProjects());
+  await onModulesInit();
+  await onProjectInit();
 };
 
-app();
+bootstrap();

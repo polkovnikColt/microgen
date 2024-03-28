@@ -1,4 +1,6 @@
 import { exec as nodeExec } from "node:child_process";
+import util from "util";
+
 import { logger } from "../logger";
 
 export class ChildProcessBuilder {
@@ -28,12 +30,7 @@ export class ChildProcessBuilder {
     });
   }
 
-  async execWithOutput(): Promise<any> {
-    return new Promise((resolve, reject) => {
-      nodeExec(this.query, (error, stdout) => {
-        resolve(stdout);
-        reject(error);
-      });
-    });
+  async execAsync(): Promise<any> {
+    return util.promisify(require("node:child_process").exec)(this.query);
   }
 }
