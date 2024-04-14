@@ -1,6 +1,17 @@
 version: "3.8"
 
 services:
+  postgres:
+    image: postgres:14-alpine
+    networks:
+      - node-network
+    ports:
+      - 5432:5432
+    volumes:
+      - ~/apps/postgres:/var/lib/postgresql/data
+    env_file:
+      - .env
+
   backend:
     build:
       context: .

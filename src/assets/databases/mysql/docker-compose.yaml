@@ -1,6 +1,18 @@
 version: "3.8"
 
 services:
+  db:
+    image: mysql:5.7
+    restart: always
+    networks:
+      - node-network
+    env_file:
+      - .env
+    ports:
+      - 3308:3306
+    volumes:
+      - ~/apps/mysql:/var/lib/postgresql/data
+
   backend:
     build:
       context: .

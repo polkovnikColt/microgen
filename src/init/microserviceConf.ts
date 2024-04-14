@@ -10,6 +10,7 @@ import { initializeTypescript } from "./typescriptConf";
 import { join } from "path";
 import { printChildProcessOutput } from "../utils";
 import { initializeDocker } from "./dockerConf";
+import { initOrm, initializeDatabase } from "./databaseConf";
 
 const frameworkConfigs: Record<string, CallableFunction> = {
   [Frameworks.EXPRESS]: npmExecutableCommands.npmInitExpress,
@@ -38,14 +39,15 @@ export const initializeServices = (): Promise<any>[] => {
 
 export const copyConfigFiles = (): Promise<any>[] => {
   const promises = __PROJECT_METADATA__.microservices
-    .filter(({ framework, exists }) => framework !== Frameworks.NEST && !exists)
+    .filter(({ framework }) => framework !== Frameworks.NEST)
     .map(({ absolutePath }) => {
       return new ChildProcessBuilder()
         .append(osExecutableCommands.changeDirectory(absolutePath))
         .append(
           osExecutableCommands.copyFile(
             join(__dirname, "../assets/git/.gitignore"),
-            absolutePath
+            absolutePath,
+            ".gitignore"
           )
         )
         .execAsync();
@@ -73,7 +75,7 @@ export const installDeps = (): Promise<any>[] => {
 
 export const copyMVCFiles = (): Promise<any>[] => {
   const promises = __PROJECT_METADATA__.microservices
-    .filter(({ framework, exists }) => framework !== Frameworks.NEST && !exists)
+    .filter(({ framework }) => framework !== Frameworks.NEST)
     .map(({ absolutePath, language, framework }) => {
       return new ChildProcessBuilder()
         .append(osExecutableCommands.changeDirectory(absolutePath))
@@ -111,4 +113,10 @@ export const onModulesInit = async () => {
 
   const responsesInitDocker = await Promise.all(initializeDocker());
   printChildProcessOutput(responsesInitDocker);
+
+  const responsesInitDatabase = await Promise.all(initializeDatabase());
+  printChildProcessOutput(responsesInitDatabase);
+
+  const responsesInitOrm = await Promise.all(initOrm());
+  printChildProcessOutput(responsesInitOrm);
 };

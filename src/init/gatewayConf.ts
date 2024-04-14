@@ -51,7 +51,8 @@ export const initializeGateway = async () => {
     .append(
       osExecutableCommands.copyFile(
         join(__dirname, "../assets/git/.gitignore"),
-        gatewayPath
+        gatewayPath,
+        ".gitignore"
       )
     )
     .execAsync();

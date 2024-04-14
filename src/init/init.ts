@@ -1,4 +1,4 @@
-import * as fs from "fs";
+import fs, { promises as fsPromises } from "fs";
 import { join } from "path";
 
 import {
@@ -16,7 +16,7 @@ import {
 import { logger } from "../logger";
 import { validateFile } from "../validate";
 
-export const getProjectConfigs = (dirPath: string): void => {
+export const getProjectConfigs = async (dirPath: string): Promise<void> => {
   //TODO - FIX path
   const path = join(__dirname, `../../../../${dirPath}`);
 
@@ -27,7 +27,7 @@ export const getProjectConfigs = (dirPath: string): void => {
   __PROJECT_METADATA__.projectPath = path;
   __PROJECT_METADATA__.projectFolderName = dirPath;
 
-  const mainConfigFile = fs.readFileSync(
+  const mainConfigFile = await fsPromises.readFile(
     `${path}/${__PROJECT_METADATA__.mainFileName}`,
     {
       encoding: "utf8",
@@ -61,12 +61,17 @@ export const getProjectConfigs = (dirPath: string): void => {
       logger.warn(
         `Microservice ${config.name} already exists!!! If you want to override it, please use --override flag`
       );
+      if (fs.existsSync(join(deepPath, "/node_modules"))) {
+        await fsPromises.rmdir(join(deepPath, "/node_modules"), {
+          recursive: true,
+        });
+      }
     }
 
     if (!fs.existsSync(deepPath)) {
       try {
         logger.info(`Create ${config.name} microservice...`);
-        fs.mkdirSync(`${path}/${config.name}`);
+        await fsPromises.mkdir(`${path}/${config.name}`);
         logger.info(`Microservice ${config.name} created successfully`);
       } catch (e) {
         const { message } = e as Error;

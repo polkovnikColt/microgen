@@ -16,7 +16,10 @@ const frameworkConfigs: Record<string, CallableFunction> = {
 
 export const initializeTypescript = (): Promise<any>[] => {
   const promises = __PROJECT_METADATA__.microservices
-    .filter(({ language, exists }) => language === Languages.TS && !exists)
+    .filter(
+      ({ language, framework }) =>
+        framework !== Frameworks.NEST && language === Languages.TS
+    )
     .map(({ absolutePath, framework }) => {
       return new ChildProcessBuilder()
         .append(osExecutableCommands.changeDirectory(absolutePath))
@@ -25,7 +28,8 @@ export const initializeTypescript = (): Promise<any>[] => {
         .append(
           osExecutableCommands.copyFile(
             join(__dirname, "../assets/typescript/tsconfig.json"),
-            absolutePath
+            absolutePath,
+            "tsconfig.json"
           )
         )
         .execAsync();

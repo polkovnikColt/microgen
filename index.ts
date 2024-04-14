@@ -13,9 +13,8 @@ if (!variables.path) {
   throw new Error('No path specified, you should use "-path=" variable!');
 }
 
-getProjectConfigs(variables.path);
-
 const bootstrap = async () => {
+  await getProjectConfigs(variables.path);
   await Promise.all(initializeNodeProjects());
   await onModulesInit();
   await onProjectInit();
