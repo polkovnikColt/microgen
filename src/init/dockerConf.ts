@@ -5,6 +5,8 @@ import { ChildProcessBuilder, osExecutableCommands } from "../commands";
 import { logger } from "../logger";
 
 export const initializeDocker = (): Promise<any>[] => {
+  logger.info("Initializing Dockerfile...");
+
   const promises = __PROJECT_METADATA__.microservices
     .filter(({ dockerFile }) => dockerFile)
     .map(({ absolutePath, database }) => {
@@ -28,8 +30,6 @@ export const initializeDocker = (): Promise<any>[] => {
         )
         .execAsync();
     });
-
-  logger.info("Initializing Dockerfile...");
 
   return promises;
 };

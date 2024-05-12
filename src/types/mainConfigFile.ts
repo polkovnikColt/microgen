@@ -19,6 +19,11 @@ export enum ORMs {
   TYPEORM = "typeorm",
 }
 
+export enum EventBrokers {
+  RABBITMQ = "rabbitmq",
+  KAFKA = "kafka",
+}
+
 export interface MicroserviceConfig {
   name: string;
   framework: Frameworks;
@@ -36,9 +41,11 @@ export interface MicroserviceConfig {
 }
 
 export interface MainConfigFile {
-  appName: string;
   externalModules?: string[];
   gateway?: boolean;
   projectPath: string;
+  eventBroker?: {
+    driver: EventBrokers;
+  };
   microservices: MicroserviceConfig[];
 }

@@ -1,4 +1,5 @@
 import { join } from "path";
+import * as fs from "fs";
 
 import {
   ChildProcessBuilder,
@@ -40,10 +41,12 @@ const ormInitConf: Record<ORMs, CallableFunction> = {
 
 const databaseAliases: Record<Databases, string> = {
   [Databases.MYSQL]: "mysql",
-  [Databases.POSTGRES]: "postgres",
+  [Databases.POSTGRES]: "postgresql",
 };
 
 export const initializeDatabase = (): Promise<any>[] => {
+  logger.info("Initializing database...");
+
   const promises = __PROJECT_METADATA__.microservices
     .filter(({ database }) => database)
     .map(({ absolutePath, database, language }) => {
@@ -65,12 +68,15 @@ export const initializeDatabase = (): Promise<any>[] => {
         .execAsync();
     });
 
-  logger.info("Initializing database...");
-
   return promises;
 };
 
 export const initOrm = (): Promise<any>[] => {
+  logger.info("Initializing orm clients...");
+
+  const prismaExists = (absolutePath: string) =>
+    fs.existsSync(join(absolutePath, "prisma"));
+
   const promises = __PROJECT_METADATA__.microservices
     .filter(({ database }) => database?.orm)
     .map(({ absolutePath, database }) => {
@@ -81,11 +87,13 @@ export const initOrm = (): Promise<any>[] => {
             ? ormConf[database.orm]()
             : npmExecutableCommands.npmNoop()
         )
-        .append(ormInitConf[database.orm](databaseAliases[database.driver]))
+        .append(
+          !prismaExists(absolutePath)
+            ? ormInitConf[database.orm](databaseAliases[database.driver])
+            : npmExecutableCommands.npmNoop()
+        )
         .execAsync();
     });
-
-  logger.info("Initializing orm clients...");
 
   return promises;
 };

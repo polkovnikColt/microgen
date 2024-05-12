@@ -1,4 +1,3 @@
-import { Databases } from "../types";
 import { NpmCommands } from "../types/commandTypes";
 
 export const npmExecutableCommands: NpmCommands = {
@@ -20,4 +19,8 @@ export const npmExecutableCommands: NpmCommands = {
   npmInstallTypeorm: () => "npm i typeorm",
   npmInitPrisma: (database: string) =>
     `npx prisma init --datasource-provider ${database}`,
+  npmInstallRabbitmq: () => `npm i amqplib`,
+  npmInstallRabbitmqTypes: () => `npm i --save-dev @types/amqplib`,
+  npmInstallKafka: () => `npm i kafkajs`,
+  npmInstallKafkaTypes: () => `npm i --save-dev @types/kafkajs`,
 };

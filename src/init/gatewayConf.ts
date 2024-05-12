@@ -7,6 +7,8 @@ import {
   npmExecutableCommands,
   osExecutableCommands,
 } from "../commands";
+import { printChildProcessOutput } from "../utils";
+import { logger } from "../logger";
 
 const moduleExportsAppend = (src: string) => `
     // Map of aliases to service URLs
@@ -16,6 +18,8 @@ const moduleExportsAppend = (src: string) => `
 `;
 
 export const initializeGateway = async () => {
+  logger.info("Initializing gateway");
+
   const microservicesLocalUrls: Record<string, string> =
     __PROJECT_METADATA__.microservices.reduce((acc, { name }) => {
       return {
@@ -32,7 +36,7 @@ export const initializeGateway = async () => {
 
   const gatewayPath = `${projectPath}/gateway`;
 
-  await new ChildProcessBuilder()
+  const promise1 = await new ChildProcessBuilder()
     .append(osExecutableCommands.changeDirectory(projectPath))
     .append(osExecutableCommands.createDirectory(gatewayPath))
     .append(
@@ -43,7 +47,9 @@ export const initializeGateway = async () => {
     )
     .execAsync();
 
-  await new ChildProcessBuilder()
+  printChildProcessOutput(promise1);
+
+  const promise2 = await new ChildProcessBuilder()
     .append(osExecutableCommands.changeDirectory(gatewayPath))
     .append(npmExecutableCommands.npmInit())
     .append(npmExecutableCommands.npmInitExpress())
@@ -56,6 +62,8 @@ export const initializeGateway = async () => {
       )
     )
     .execAsync();
+
+  printChildProcessOutput(promise2);
 
   fs.writeFileSync(
     `${projectPath}/gateway/serviceMap.js`,

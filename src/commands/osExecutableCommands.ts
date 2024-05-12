@@ -22,7 +22,7 @@ export const osExecutableCommands: OsCommands = {
       ObjectTypes.FILE
     ),
   copyDirectory: (toCopy: string, toInsert: string) =>
-    ifExists(toInsert, `cp -r -u ${toCopy} ${toInsert}`, ObjectTypes.DIR),
+    `cp -r -u ${toCopy} ${toInsert}`,
   renameFile: () => ``,
   initGit: () => `git init`,
   createDirectory: (dir: string) => `mkdir -p ${dir}`,

@@ -40,6 +40,7 @@ export const getProjectConfigs = async (dirPath: string): Promise<void> => {
 
   __PROJECT_METADATA__.gateway = parsedMainConfigFile.gateway;
   __PROJECT_METADATA__.externalModules = parsedMainConfigFile.externalModules;
+  __PROJECT_METADATA__.eventBroker = parsedMainConfigFile.eventBroker;
 
   const microservicesConfigs: MicroserviceConfig[] =
     parsedMainConfigFile.microservices;

@@ -21,10 +21,10 @@
   "homepage": "https://github.com/polkovnikColt/microgen#readme",
   "devDependencies": {
     "@types/args": "^5.0.3",
-    "@types/node": "^20.11.26",
+    "@types/node": "^20.12.7",
     "@types/yargs": "^17.0.32",
     "tsc": "^2.0.4",
-    "typescript": "^5.4.2"
+    "typescript": "^5.4.5"
   },
   "dependencies": {
     "args": "^5.0.3",

@@ -14,6 +14,10 @@ export interface NpmCommands {
   npmInstallPrisma: () => string;
   npmInstallTypeorm: () => string;
   npmInitPrisma: (database: string) => string;
+  npmInstallRabbitmq: () => string;
+  npmInstallRabbitmqTypes: () => string;
+  npmInstallKafka: () => string;
+  npmInstallKafkaTypes: () => string;
 }
 
 export interface OsCommands {
